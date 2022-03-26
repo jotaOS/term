@@ -1,12 +1,12 @@
 #include <syscalls>
+#include <common.hpp>
+#include <cstring>
 
-volatile static int bruh;
-volatile static int xd = 5;
-
-extern "C" void _start() {
+extern "C" void _start(size_t fb, size_t row, size_t col) {
 	asm volatile("xchgw %bx, %bx");
+	init(fb, row, col);
+	writes("[OK]", 4);
 
-	volatile int a = std::test();
-	bruh = 7;
-	std::exit(a + xd + bruh);
+	while(true);
+	// TODO: publish & halt
 }
