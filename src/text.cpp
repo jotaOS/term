@@ -70,5 +70,7 @@ void resetColor() { color = DEFAULT_COLOR; }
 void setColor(uint8_t c) { color = c; }
 
 void clear() {
-	for(size_t i=0; i<ROWS; ++i) clearRow(i);
+	for(size_t i=0; i<ROWS; ++i)
+		clearRow(i);
+	row = col = 0;
 }
