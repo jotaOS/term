@@ -1,22 +1,40 @@
-#include <syscalls>
-#include <common.hpp>
+#include "common.hpp"
 #include <cstring>
 #include <export>
+#include <rpc>
+#include <shared_memory>
+#include <unordered_map>
 
-size_t asdf(size_t client, size_t x) {
-	IGNORE(client);
-	writec(x);
-	return 42;
+std::unordered_map<std::PID, char*> shared;
+
+bool connect(std::PID client, std::SMID smid) {
+	// Already connected?
+	if(!std::smRequest(client, smid))
+		return false;
+
+	char* ptr = (char*)std::smMap(smid);
+	if(!ptr)
+		return false;
+
+	// TODO: unmap previous, release SMID
+	shared[client] = ptr;
+	return true;
 }
 
-//extern "C" void rpcEntry();
+size_t flush(std::PID client, size_t sz) {
+	if(sz >= 4096)
+		return ~0;
 
-extern "C" void _start(size_t fb, size_t row, size_t col) {
-	init(fb, row, col);
-	writes("[OK]", 4);
+	writes(shared[client], sz);
+	return sz;
+}
 
-	std::exportProcedure((void*)asdf, 1);
-	std::enableRPC(/*rpcEntry*/);
+extern "C" void _start(size_t fb, size_t* sync) {
+	init(fb, sync);
+
+	std::exportProcedure((void*)connect, 1);
+	std::exportProcedure((void*)flush, 1);
+	std::enableRPC();
 	std::publish("term");
 	std::halt();
 }

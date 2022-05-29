@@ -2,21 +2,21 @@
 #include <cstring>
 
 static size_t base = 0;
-static size_t row = 0;
-static size_t col = 0;
+static size_t* row = nullptr;
+static size_t* col = nullptr;
 static char color = DEFAULT_COLOR;
 
-void init(size_t fb, size_t r, size_t c) {
+void init(size_t fb, size_t* sync) {
 	base = fb;
-	row = r;
-	col = c;
+	row = &sync[0];
+	col = &sync[1];
 }
 
 inline static char* getChar(size_t r, size_t c) {
 	return ((char*)base) + (COLS * r + c)*2;
 }
 
-inline static char* getVideo() { return getChar(row, col); }
+inline static char* getVideo() { return getChar(*row, *col); }
 
 inline static void clearRow(size_t r) {
 	char* buffer = getChar(r, 0);
@@ -31,21 +31,21 @@ inline static void scroll() {
 	// Move up
 	memmove((void*)base, from, (ROWS-1)*BYTES_PER_ROW);
 	// Go up
-	--row;
+	--*row;
 	// Clear last line
 	clearRow(ROWS-1);
 }
 
 static void goAhead() {
 	// Next column
-	++col;
+	++*col;
 
-	if(col >= COLS) {
+	if(*col >= COLS) {
 		// Have to go the next line
-		++row;
-		col = 0;
+		++*row;
+		*col = 0;
 
-		if(row >= ROWS) {
+		if(*row >= ROWS) {
 			// Have to scroll
 			scroll();
 		}
@@ -54,9 +54,9 @@ static void goAhead() {
 
 void writec(char c) {
 	if(c == '\n') {
-		++row;
-		col = 0;
-		if(row >= ROWS) scroll();
+		++*row;
+		*col = 0;
+		if(*row >= ROWS) scroll();
 		return;
 	}
 
@@ -72,5 +72,5 @@ void setColor(uint8_t c) { color = c; }
 void clear() {
 	for(size_t i=0; i<ROWS; ++i)
 		clearRow(i);
-	row = col = 0;
+	*row = *col = 0;
 }

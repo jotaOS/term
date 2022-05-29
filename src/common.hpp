@@ -8,7 +8,7 @@
 #define BYTES_PER_ROW (COLS * 2)
 #define DEFAULT_COLOR 0x0A
 
-void init(size_t base, size_t row, size_t col);
+void init(size_t base, size_t* sync);
 
 void writec(char c);
 
