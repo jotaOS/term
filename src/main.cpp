@@ -22,7 +22,7 @@ bool connect(std::PID client, std::SMID smid) {
 }
 
 size_t flush(std::PID client, size_t sz) {
-	if(sz >= 4096)
+	if(sz >= PAGE_SIZE)
 		return ~0;
 
 	writes(shared[client], sz);
