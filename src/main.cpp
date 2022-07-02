@@ -4,28 +4,25 @@
 #include <rpc>
 #include <shared_memory>
 #include <unordered_map>
-
-std::unordered_map<std::PID, char*> shared;
+#include <mutex>
 
 bool connect(std::PID client, std::SMID smid) {
-	// Already connected?
-	if(!std::smRequest(client, smid))
-		return false;
-
-	char* ptr = (char*)std::smMap(smid);
-	if(!ptr)
-		return false;
-
-	// TODO: unmap previous, release SMID
-	shared[client] = ptr;
-	return true;
+	return std::sm::connect(client, smid);
 }
+
+static std::mutex lock;
 
 size_t flush(std::PID client, size_t sz) {
 	if(sz >= PAGE_SIZE)
 		return ~0;
 
-	writes(shared[client], sz);
+	char* ptr = (char*)std::sm::get(client);
+	if(!ptr)
+		return 0;
+
+	lock.acquire();
+	writes(ptr, sz);
+	lock.release();
 	return sz;
 }
 
