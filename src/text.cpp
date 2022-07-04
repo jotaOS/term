@@ -66,6 +66,28 @@ void writec(char c) {
 	goAhead();
 }
 
+void writes(const char* str, size_t sz) {
+	while(sz--)
+		writec(*str++);
+
+	if(*col == COLS-1) {
+		if(*row == ROWS-1) {
+			// It's not worth scrolling
+			updateCursor(*row, *col);
+		} else {
+			updateCursor(*row+1, 0);
+		}
+	} else {
+		if(*getChar(*row, *col+1) == ' ') {
+			updateCursor(*row, *col);
+		} else {
+			updateCursor(*row, *col+1);
+		}
+	}
+}
+
+
+
 void resetColor() { color = DEFAULT_COLOR; }
 void setColor(uint8_t c) { color = c; }
 
@@ -73,4 +95,5 @@ void clear() {
 	for(size_t i=0; i<ROWS; ++i)
 		clearRow(i);
 	*row = *col = 0;
+	updateCursor(0, 0);
 }
