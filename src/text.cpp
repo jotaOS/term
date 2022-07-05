@@ -52,8 +52,16 @@ static void goAhead() {
 	}
 }
 
+static bool colorMode = false;
 void writec(char c) {
-	if(c == '\n') {
+	if(colorMode) {
+		color = c;
+		colorMode = false;
+		return;
+	} else if(c == 033) {
+		colorMode = true;
+		return;
+	} else if(c == '\n') {
 		++*row;
 		*col = 0;
 		if(*row >= ROWS) scroll();
