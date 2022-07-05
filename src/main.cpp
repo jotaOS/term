@@ -28,7 +28,7 @@ size_t flush(std::PID client, size_t sz) {
 
 extern "C" void _start(size_t fb, size_t* sync) {
 	// Need IO privileges for cursor
-	if(std::getIO() != 0)
+	if(std::allowIO() != 0)
 		std::exit(1);
 
 	init(fb, sync);
