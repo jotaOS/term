@@ -26,6 +26,14 @@ size_t flush(std::PID client, size_t sz) {
 	return sz;
 }
 
+void pubClear(std::PID client) {
+	IGNORE(client);
+
+	lock.acquire();
+	clear();
+	lock.release();
+}
+
 extern "C" void _start(size_t fb, size_t* sync) {
 	// Need IO privileges for cursor
 	if(std::allowIO() != 0)
@@ -36,6 +44,7 @@ extern "C" void _start(size_t fb, size_t* sync) {
 
 	std::exportProcedure((void*)connect, 1);
 	std::exportProcedure((void*)flush, 1);
+	std::exportProcedure((void*)pubClear, 1);
 	std::enableRPC();
 	std::publish("term");
 	std::halt();

@@ -52,6 +52,16 @@ static void goAhead() {
 	}
 }
 
+static void goBack() {
+	// This doesn't scroll!
+	if(!*col) {
+		--*row;
+		*col = COLS-1;
+	} else {
+		--*col;
+	}
+}
+
 static bool colorMode = false;
 void writec(char c) {
 	if(colorMode) {
@@ -65,6 +75,9 @@ void writec(char c) {
 		++*row;
 		*col = 0;
 		if(*row >= ROWS) scroll();
+		return;
+	} else if(c == '\b') {
+		goBack();
 		return;
 	}
 
