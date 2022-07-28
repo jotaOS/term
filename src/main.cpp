@@ -44,7 +44,7 @@ extern "C" void _start(size_t fb, size_t* sync) {
 
 	std::exportProcedure((void*)connect, 1);
 	std::exportProcedure((void*)flush, 1);
-	std::exportProcedure((void*)pubClear, 1);
+	std::exportProcedure((void*)pubClear, 0);
 	std::enableRPC();
 	std::publish("term");
 	std::halt();
